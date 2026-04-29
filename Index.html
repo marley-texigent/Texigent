@@ -1,0 +1,1930 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texigent</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–black:  #0c0c0b;
+–white:  #f4f3ee;
+–rule:   #d6d4cc;
+–mid:    #8a8880;
+–dim:    #b5b3ac;
+–red:    #bf2d14;
+–red-dk: #9a2410;
+–mono:   ‘IBM Plex Mono’, monospace;
+–sans:   ‘IBM Plex Sans’, sans-serif;
+–serif:  ‘DM Serif Display’, serif;
+}
+
+html { font-size: 13px; scroll-behavior: smooth; }
+body {
+background: var(–white);
+color: var(–black);
+font-family: var(–mono);
+font-weight: 300;
+line-height: 1.6;
+background-image: url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘200’ height=‘200’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.9’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘200’ height=‘200’ filter=‘url(%23n)’ opacity=‘0.025’/%3E%3C/svg%3E”);
+}
+
+/* ── PAGE SYSTEM ── */
+.page { display: none; }
+.page.active { display: block; animation: fadeUp .35s ease forwards; }
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(8px); }
+to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ══════════════════════════════════
+GLOBAL HEADER
+══════════════════════════════════ */
+.sticky-header {
+position: sticky;
+top: 0;
+z-index: 200;
+background: var(–white);
+}
+
+header {
+display: grid;
+grid-template-columns: 1fr auto 1fr;
+align-items: center;
+padding: 22px 48px;
+border-bottom: 1px solid var(–rule);
+}
+
+.wordmark {
+font-size: 11px;
+font-weight: 500;
+letter-spacing: .26em;
+text-transform: uppercase;
+text-decoration: none;
+color: var(–black);
+display: flex;
+align-items: center;
+gap: 10px;
+cursor: pointer;
+background: none;
+border: none;
+font-family: var(–mono);
+}
+.wordmark-dot {
+width: 6px; height: 6px;
+background: var(–red);
+border-radius: 50%;
+flex-shrink: 0;
+}
+.header-status {
+font-size: 9px;
+letter-spacing: .16em;
+text-transform: uppercase;
+color: var(–dim);
+text-align: center;
+}
+
+nav { display: flex; gap: 28px; justify-content: flex-end; align-items: center; }
+nav button {
+font-size: 10px;
+letter-spacing: .14em;
+text-transform: uppercase;
+background: none;
+border: none;
+color: var(–mid);
+font-family: var(–mono);
+cursor: pointer;
+transition: color .15s;
+position: relative;
+padding: 0;
+}
+nav button::after {
+content: ‘’;
+position: absolute;
+bottom: -2px; left: 0;
+width: 0; height: 1px;
+background: var(–black);
+transition: width .2s;
+}
+nav button:hover { color: var(–black); }
+nav button:hover::after { width: 100%; }
+nav button.nav-active { color: var(–black); }
+nav button.nav-active::after { width: 100%; }
+
+/* ══════════════════════════════════
+CATALOGUE PAGE — CAT NAV
+══════════════════════════════════ */
+.cat-nav {
+display: flex;
+overflow-x: auto;
+scrollbar-width: none;
+background: var(–white);
+border-bottom: 1px solid var(–rule);
+}
+.cat-nav::-webkit-scrollbar { display: none; }
+.cat-tab {
+flex: 1;
+min-width: max-content;
+padding: 16px 32px;
+font-size: 10px;
+letter-spacing: .16em;
+text-transform: uppercase;
+color: var(–mid);
+background: none;
+border: none;
+border-right: 1px solid var(–rule);
+font-family: var(–mono);
+cursor: pointer;
+transition: all .15s;
+text-align: left;
+display: flex;
+flex-direction: column;
+gap: 5px;
+position: relative;
+}
+.cat-tab:last-child { border-right: none; }
+.cat-tab::before {
+content: ‘’;
+position: absolute;
+bottom: 0; left: 0;
+width: 0; height: 2px;
+background: var(–black);
+transition: width .25s ease;
+}
+.cat-tab:hover { color: var(–black); background: rgba(0,0,0,.015); }
+.cat-tab:hover::before { width: 100%; }
+.cat-tab.active { color: var(–black); }
+.cat-tab.active::before { width: 100%; }
+.cat-tab-sub {
+font-size: 8px;
+color: var(–dim);
+font-style: italic;
+letter-spacing: .06em;
+text-transform: none;
+}
+
+/* ── PANELS ── */
+.cat-panel { display: none; }
+.cat-panel.active { display: block; animation: fadeUp .3s ease forwards; }
+
+/* ── CAT INTRO ── */
+.cat-intro {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 64px;
+padding: 56px 48px 52px;
+border-bottom: 1px solid var(–rule);
+align-items: end;
+}
+.cat-label {
+font-size: 9px;
+letter-spacing: .26em;
+text-transform: uppercase;
+color: var(–dim);
+margin-bottom: 18px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.cat-label::after {
+content: ‘’;
+flex: 1;
+max-width: 40px;
+height: 1px;
+background: var(–dim);
+}
+.cat-headline {
+font-size: clamp(20px, 2.6vw, 32px);
+font-weight: 300;
+line-height: 1.2;
+letter-spacing: -.01em;
+margin-bottom: 24px;
+}
+.cat-headline em {
+font-family: var(–serif);
+font-style: italic;
+color: var(–mid);
+font-weight: 400;
+}
+.cat-body {
+font-family: var(–sans);
+font-size: 11.5px;
+color: var(–mid);
+line-height: 1.9;
+max-width: 460px;
+font-style: italic;
+font-weight: 300;
+}
+
+.cat-meta {
+display: flex;
+flex-direction: column;
+gap: 0;
+justify-content: flex-end;
+}
+.challenge-nav-label {
+font-size: 9px;
+letter-spacing: .2em;
+text-transform: uppercase;
+color: var(–black);
+padding-bottom: 14px;
+border-bottom: 2px solid var(–black);
+font-weight: 500;
+}
+.challenge-nav-item {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 0;
+border-bottom: 1px solid var(–rule);
+cursor: pointer;
+transition: all .15s;
+background: none;
+border-left: none;
+border-right: none;
+border-top: none;
+font-family: var(–mono);
+width: 100%;
+text-align: left;
+position: relative;
+overflow: hidden;
+}
+.challenge-nav-item::after {
+content: ‘’;
+position: absolute;
+bottom: 0; left: 0;
+width: 0; height: 1px;
+background: var(–red);
+transition: width .25s;
+}
+.challenge-nav-item:hover::after { width: 100%; }
+.challenge-nav-item:first-of-type { border-top: 1px solid var(–rule); }
+.challenge-nav-item:hover .challenge-nav-name { color: var(–red); }
+.challenge-nav-item:hover .challenge-nav-arrow { color: var(–red); opacity: 1; }
+.challenge-nav-name {
+font-size: 10px;
+letter-spacing: .16em;
+text-transform: uppercase;
+color: var(–black);
+transition: color .15s;
+}
+.challenge-nav-arrow {
+font-size: 11px;
+color: var(–mid);
+opacity: .8;
+transition: all .15s;
+}
+
+/* ── FABRIC SECTION ── */
+.fabric-section { border-bottom: 1px solid var(–rule); }
+
+.problem-header {
+display: grid;
+grid-template-columns: 72px 1fr;
+gap: 0;
+padding: 40px 48px;
+border-bottom: 1px solid var(–rule);
+background: rgba(0,0,0,.038);
+border-left: 3px solid var(–rule);
+}
+.problem-num {
+font-family: var(–serif);
+font-size: 32px;
+color: var(–dim);
+font-style: italic;
+line-height: 1;
+padding-top: 4px;
+user-select: none;
+}
+.problem-challenge {
+font-size: 8.5px;
+letter-spacing: .22em;
+text-transform: uppercase;
+color: var(–red);
+margin-bottom: 10px;
+display: block;
+}
+.problem-statement {
+font-size: clamp(15px, 1.9vw, 21px);
+font-weight: 400;
+line-height: 1.3;
+margin-bottom: 12px;
+max-width: 560px;
+}
+.problem-context {
+font-family: var(–sans);
+font-size: 11px;
+color: var(–mid);
+line-height: 1.9;
+max-width: 520px;
+font-style: italic;
+font-weight: 300;
+}
+
+.fabric-entry {
+display: grid;
+grid-template-columns: 72px 1fr;
+gap: 0;
+border-bottom: 1px solid var(–rule);
+transition: background .2s;
+position: relative;
+background: var(–white);
+border-left: 3px solid transparent;
+}
+.fabric-entry:last-child { border-bottom: none; }
+.fabric-entry::before { display: none; }
+.fabric-entry:hover { background: rgba(0,0,0,.012); border-left-color: var(–red); }
+
+.entry-idx {
+padding: 34px 0 34px 48px;
+font-family: var(–serif);
+font-size: 13px;
+font-style: italic;
+color: var(–dim);
+padding-top: 38px;
+}
+.entry-body { padding: 34px 48px 34px 0; }
+.entry-does {
+font-size: 15px;
+font-weight: 400;
+line-height: 1.3;
+margin-bottom: 6px;
+letter-spacing: -.01em;
+}
+.entry-fabric-label {
+font-size: 8px;
+letter-spacing: .22em;
+text-transform: uppercase;
+color: var(–dim);
+margin-bottom: 10px;
+}
+letter-spacing: .15em;
+text-transform: uppercase;
+color: var(–dim);
+margin-bottom: 20px;
+}
+.entry-mechanism {
+font-family: var(–sans);
+font-size: 11.5px;
+line-height: 1.95;
+max-width: 620px;
+margin-bottom: 24px;
+font-weight: 300;
+color: #3a3936;
+}
+.entry-mechanism strong { font-weight: 400; color: var(–black); }
+
+.variant-block {
+border: 1px solid var(–rule);
+margin-bottom: 12px;
+transition: border-color .15s;
+}
+.variant-block:hover { border-color: var(–dim); }
+.variant-label {
+font-size: 8px;
+letter-spacing: .2em;
+text-transform: uppercase;
+color: var(–mid);
+padding: 10px 16px;
+border-bottom: 1px solid var(–rule);
+background: rgba(0,0,0,.02);
+}
+
+.spec-row {
+display: flex;
+flex-wrap: wrap;
+gap: 0;
+border-top: 1px solid var(–rule);
+padding-top: 18px;
+margin-bottom: 20px;
+}
+.spec {
+display: flex;
+flex-direction: column;
+gap: 5px;
+padding-right: 24px;
+margin-right: 24px;
+margin-bottom: 14px;
+border-right: 1px solid var(–rule);
+}
+.spec:last-child { border-right: none; }
+.spec-k {
+font-size: 7.5px;
+letter-spacing: .22em;
+text-transform: uppercase;
+color: var(–dim);
+}
+.spec-v { font-size: 11px; font-weight: 400; }
+
+.entry-footer {
+display: flex;
+align-items: center;
+gap: 8px;
+flex-wrap: wrap;
+}
+.badge-cert {
+font-size: 7.5px;
+letter-spacing: .14em;
+text-transform: uppercase;
+color: var(–red);
+border: 1px solid var(–red);
+padding: 3px 9px;
+}
+.badge-tag {
+font-size: 7.5px;
+letter-spacing: .12em;
+text-transform: uppercase;
+color: var(–mid);
+border: 1px solid var(–rule);
+padding: 3px 9px;
+transition: border-color .15s, color .15s;
+}
+.badge-tag:hover { border-color: var(–dim); color: var(–black); cursor: default; }
+.avail-in  { color: var(–black); font-size: 9.5px; }
+.avail-ltd { color: #a07000; font-size: 9.5px; }
+.avail-ord { color: var(–mid); font-size: 9.5px; }
+.btn-inquire {
+margin-left: auto;
+font-family: var(–mono);
+font-size: 8.5px;
+letter-spacing: .2em;
+text-transform: uppercase;
+background: none;
+color: var(–black);
+border: 1px solid var(–black);
+padding: 9px 20px;
+cursor: pointer;
+transition: all .2s;
+position: relative;
+overflow: hidden;
+}
+.btn-inquire::before {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: var(–black);
+transform: translateX(-101%);
+transition: transform .2s ease;
+z-index: 0;
+}
+.btn-inquire span { position: relative; z-index: 1; transition: color .2s; }
+.btn-inquire:hover::before { transform: translateX(0); }
+.btn-inquire:hover span { color: var(–white); }
+
+/* EOL */
+.eol-coming {
+padding: 80px 48px;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 64px;
+border-bottom: 1px solid var(–rule);
+align-items: center;
+}
+.eol-status-block { display: flex; flex-direction: column; gap: 0; }
+.eol-status-item {
+display: flex;
+justify-content: space-between;
+align-items: baseline;
+padding: 16px 0;
+border-bottom: 1px solid var(–rule);
+}
+.eol-status-item:first-child { border-top: 1px solid var(–rule); }
+.eol-status-key { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(–dim); }
+.eol-status-val { font-size: 10px; color: var(–black); }
+.eol-brief-btn {
+margin-top: 24px;
+font-family: var(–mono);
+font-size: 9px;
+letter-spacing: .2em;
+text-transform: uppercase;
+background: none;
+color: var(–black);
+border: 1px solid var(–rule);
+padding: 14px 22px;
+cursor: pointer;
+transition: border-color .15s;
+width: 100%;
+text-align: left;
+display: flex;
+justify-content: space-between;
+}
+.eol-brief-btn:hover { border-color: var(–black); }
+.eol-principles { display: flex; flex-direction: column; gap: 0; }
+.eol-principle { padding: 20px 0; border-bottom: 1px solid var(–rule); }
+.eol-principle:first-child { border-top: 1px solid var(–rule); }
+.eol-principle-name { font-size: 9px; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 6px; color: var(–black); }
+.eol-principle-desc { font-family: var(–sans); font-size: 10.5px; color: var(–mid); font-style: italic; line-height: 1.8; font-weight: 300; }
+
+/* ── CATALOGUE BOTTOM CTA ── */
+.bottom-cta {
+padding: 64px 48px;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 64px;
+align-items: center;
+border-top: 1px solid var(–rule);
+}
+.cta-text {
+font-family: var(–serif);
+font-size: clamp(17px, 2.2vw, 27px);
+font-style: italic;
+font-weight: 400;
+line-height: 1.45;
+color: var(–mid);
+}
+.cta-text span { color: var(–black); }
+.cta-actions { display: flex; flex-direction: column; gap: 10px; }
+.btn-primary {
+font-family: var(–mono);
+font-size: 9.5px;
+letter-spacing: .2em;
+text-transform: uppercase;
+background: var(–black);
+color: var(–white);
+border: none;
+padding: 16px 28px;
+cursor: pointer;
+text-align: left;
+transition: background .2s;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.btn-primary:hover { background: var(–red); }
+.btn-secondary {
+font-family: var(–mono);
+font-size: 9.5px;
+letter-spacing: .18em;
+text-transform: uppercase;
+background: none;
+color: var(–black);
+border: 1px solid var(–rule);
+padding: 16px 28px;
+cursor: pointer;
+text-align: left;
+transition: border-color .15s;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.btn-secondary:hover { border-color: var(–black); }
+
+/* ══════════════════════════════════
+ENGAGEMENTS PAGE
+══════════════════════════════════ */
+.eng-hero {
+padding: 80px 48px 72px;
+border-bottom: 1px solid var(–rule);
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 60px;
+align-items: end;
+}
+.eng-hero-label {
+font-size: 10px;
+letter-spacing: .2em;
+text-transform: uppercase;
+color: var(–mid);
+margin-bottom: 24px;
+}
+.eng-hero-title {
+font-family: var(–mono);
+font-weight: 500;
+font-size: clamp(36px, 5vw, 64px);
+letter-spacing: .1em;
+text-transform: uppercase;
+line-height: 1.1;
+color: var(–black);
+}
+.eng-hero-sub {
+font-family: var(–serif);
+font-style: italic;
+font-weight: 400;
+font-size: clamp(18px, 2vw, 26px);
+color: var(–mid);
+line-height: 1.6;
+align-self: end;
+padding-bottom: 8px;
+}
+
+.engagements-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+border-bottom: 1px solid var(–rule);
+}
+.engagement {
+padding: 64px 52px;
+border-right: 1px solid var(–rule);
+display: flex;
+flex-direction: column;
+transition: background .3s ease;
+}
+.engagement:last-child { border-right: none; }
+.engagement:hover { background: rgba(0,0,0,.015); }
+
+.engagement-index {
+font-size: 9px;
+letter-spacing: .2em;
+color: var(–mid);
+margin-bottom: 48px;
+}
+.engagement-title {
+font-family: var(–mono);
+font-weight: 500;
+font-size: 28px;
+letter-spacing: .18em;
+text-transform: uppercase;
+color: var(–black);
+margin-bottom: 32px;
+position: relative;
+}
+.engagement-title::after {
+content: ‘’;
+display: block;
+width: 24px;
+height: 1px;
+background: var(–black);
+margin-top: 20px;
+}
+.engagement-body {
+font-family: var(–mono);
+font-weight: 300;
+font-size: 12px;
+line-height: 1.9;
+color: var(–mid);
+flex: 1;
+margin-bottom: 40px;
+}
+.engagement-note {
+font-family: var(–serif);
+font-style: italic;
+font-size: 15px;
+line-height: 1.65;
+color: var(–dim);
+border-top: 1px solid var(–rule);
+padding-top: 24px;
+margin-top: auto;
+}
+
+.eng-cta-section {
+padding: 80px 48px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+border-bottom: 1px solid var(–rule);
+}
+.eng-cta-text {
+font-family: var(–serif);
+font-style: italic;
+font-size: 20px;
+color: var(–mid);
+max-width: 400px;
+line-height: 1.6;
+}
+
+/* ══════════════════════════════════
+ABOUT PAGE
+══════════════════════════════════ */
+.about-hero {
+display: grid;
+grid-template-columns: 1fr 1fr;
+border-bottom: 1px solid var(–rule);
+}
+.about-hero-left {
+background: var(–black);
+display: flex;
+flex-direction: column;
+justify-content: flex-end;
+padding: 100px 64px 80px;
+position: relative;
+overflow: hidden;
+min-height: 420px;
+}
+.about-hero-left::before {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(242,239,233,.03) 39px, rgba(242,239,233,.03) 40px);
+}
+.about-hero-index {
+font-size: 10px;
+letter-spacing: .2em;
+color: var(–mid);
+margin-bottom: 48px;
+position: relative;
+}
+.about-hero-wordmark {
+font-family: var(–mono);
+font-weight: 500;
+font-size: clamp(32px, 5vw, 56px);
+letter-spacing: .22em;
+text-transform: uppercase;
+color: var(–white);
+position: relative;
+line-height: 1;
+}
+.about-hero-right {
+display: flex;
+flex-direction: column;
+justify-content: flex-end;
+padding: 80px 64px;
+border-left: 1px solid var(–rule);
+}
+.about-hero-label {
+font-size: 9px;
+letter-spacing: .2em;
+text-transform: uppercase;
+color: var(–mid);
+margin-bottom: 24px;
+}
+.about-hero-body {
+font-family: var(–sans);
+font-weight: 300;
+font-size: 14px;
+line-height: 1.85;
+color: var(–mid);
+max-width: 420px;
+}
+.about-hero-body strong { font-weight: 400; color: var(–black); }
+
+/* PRINCIPLES DARK */
+.about-principles {
+background: var(–black);
+padding: 100px 0;
+}
+.about-principles-inner {
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 48px;
+display: grid;
+grid-template-columns: 200px 1fr;
+gap: 80px;
+}
+.about-section-label {
+font-size: 9px;
+letter-spacing: .2em;
+text-transform: uppercase;
+color: var(–mid);
+padding-top: 6px;
+}
+.about-section-num {
+font-size: 9px;
+letter-spacing: .15em;
+color: rgba(140,134,128,.4);
+display: block;
+margin-bottom: 8px;
+}
+.principles-list {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0;
+}
+.principle-item {
+padding: 48px 48px 48px 0;
+border-bottom: 1px solid rgba(242,239,233,.08);
+border-right: 1px solid rgba(242,239,233,.08);
+}
+.principle-item:nth-child(even) { padding-left: 48px; padding-right: 0; border-right: none; }
+.principle-item:nth-child(3),
+.principle-item:nth-child(4) { border-bottom: none; }
+.principle-num {
+font-size: 9px;
+letter-spacing: .15em;
+color: rgba(140,134,128,.4);
+margin-bottom: 20px;
+display: block;
+}
+.principle-title {
+font-family: var(–mono);
+font-size: 11px;
+letter-spacing: .15em;
+text-transform: uppercase;
+color: var(–white);
+margin-bottom: 16px;
+font-weight: 500;
+}
+.principle-body { font-size: 13px; font-weight: 300; color: var(–mid); line-height: 1.75; }
+.cost-eq {
+margin-top: 20px;
+font-family: var(–mono);
+font-size: 11px;
+letter-spacing: .1em;
+color: var(–white);
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.cost-eq .eq-op { color: var(–mid); }
+.cost-eq .eq-label { font-size: 8px; letter-spacing: .08em; color: var(–mid); margin-left: 4px; }
+
+/* CLOSING */
+.about-closing {
+padding: 100px 0;
+border-top: 1px solid var(–rule);
+}
+.about-closing-inner {
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 48px;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 80px;
+align-items: end;
+}
+.closing-pull {
+font-family: var(–serif);
+font-weight: 400;
+font-style: italic;
+font-size: clamp(32px, 3.5vw, 52px);
+line-height: 1.15;
+color: var(–black);
+margin-bottom: 40px;
+}
+.closing-body {
+font-family: var(–sans);
+font-size: 14px;
+color: var(–mid);
+line-height: 1.8;
+max-width: 440px;
+margin-bottom: 48px;
+font-weight: 300;
+}
+.cta-link {
+font-family: var(–mono);
+font-size: 11px;
+letter-spacing: .15em;
+text-transform: uppercase;
+color: var(–black);
+background: none;
+border: none;
+border-bottom: 1px solid var(–black);
+padding-bottom: 4px;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+gap: 12px;
+transition: gap .3s;
+font-family: var(–mono);
+}
+.cta-link:hover { gap: 20px; }
+
+/* ══════════════════════════════════
+SHARED FOOTER
+══════════════════════════════════ */
+footer {
+border-top: 1px solid var(–rule);
+padding: 32px 48px;
+display: grid;
+grid-template-columns: auto 1fr auto;
+align-items: center;
+gap: 32px;
+}
+.footer-wordmark {
+font-size: 10px;
+letter-spacing: .22em;
+text-transform: uppercase;
+color: var(–black);
+font-weight: 500;
+}
+.footer-mid {
+text-align: center;
+font-size: 9px;
+letter-spacing: .12em;
+color: var(–dim);
+}
+.footer-right {
+text-align: right;
+font-size: 9px;
+letter-spacing: .1em;
+color: var(–dim);
+display: flex;
+flex-direction: column;
+gap: 3px;
+align-items: flex-end;
+}
+.footer-email {
+color: var(–black);
+text-decoration: none;
+border-bottom: 1px solid var(–rule);
+transition: border-color .15s;
+}
+.footer-email:hover { border-color: var(–black); }
+
+/* ══════════════════════════════════
+inquiry PANEL
+══════════════════════════════════ */
+.inquiry-overlay {
+position: fixed;
+inset: 0;
+background: rgba(12,12,11,.4);
+z-index: 500;
+opacity: 0;
+pointer-events: none;
+transition: opacity .3s;
+backdrop-filter: blur(2px);
+}
+.inquiry-overlay.open { opacity: 1; pointer-events: all; }
+
+.inquiry-panel {
+position: fixed;
+top: 0; right: 0; bottom: 0;
+width: min(480px, 100vw);
+background: var(–white);
+border-left: 1px solid var(–rule);
+z-index: 600;
+transform: translateX(100%);
+transition: transform .35s cubic-bezier(.4,0,.2,1);
+display: flex;
+flex-direction: column;
+overflow-y: auto;
+}
+.inquiry-panel.open { transform: translateX(0); }
+
+.inquiry-header {
+padding: 28px 32px 24px;
+border-bottom: 1px solid var(–rule);
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+flex-shrink: 0;
+}
+.inquiry-title {
+font-size: 9px;
+letter-spacing: .22em;
+text-transform: uppercase;
+color: var(–black);
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+.inquiry-fabric-name {
+font-size: 14px;
+font-family: var(–serif);
+font-style: italic;
+letter-spacing: 0;
+text-transform: none;
+color: var(–mid);
+}
+.inquiry-close {
+background: none;
+border: none;
+font-family: var(–mono);
+font-size: 18px;
+color: var(–mid);
+cursor: pointer;
+padding: 0;
+transition: color .15s;
+line-height: 1;
+margin-top: -2px;
+}
+.inquiry-close:hover { color: var(–black); }
+
+.inquiry-body { padding: 32px; flex: 1; }
+.field-group { margin-bottom: 24px; }
+.field-label {
+display: block;
+font-size: 8px;
+letter-spacing: .22em;
+text-transform: uppercase;
+color: var(–dim);
+margin-bottom: 8px;
+}
+.field-input, .field-textarea, .field-select {
+width: 100%;
+font-family: var(–mono);
+font-size: 12px;
+font-weight: 300;
+color: var(–black);
+background: none;
+border: 1px solid var(–rule);
+padding: 11px 14px;
+transition: border-color .15s;
+outline: none;
+-webkit-appearance: none;
+border-radius: 0;
+}
+.field-input:focus, .field-textarea:focus, .field-select:focus { border-color: var(–black); }
+.field-textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+.field-select {
+background-image: url(“data:image/svg+xml,%3Csvg xmlns=‘http://www.w3.org/2000/svg’ width=‘10’ height=‘6’%3E%3Cpath d=‘M0 0l5 6 5-6z’ fill=’%238a8880’/%3E%3C/svg%3E”);
+background-repeat: no-repeat;
+background-position: right 14px center;
+cursor: pointer;
+}
+.inquiry-footer {
+padding: 24px 32px 32px;
+border-top: 1px solid var(–rule);
+flex-shrink: 0;
+}
+.inquiry-submit {
+width: 100%;
+font-family: var(–mono);
+font-size: 9px;
+letter-spacing: .2em;
+text-transform: uppercase;
+background: var(–black);
+color: var(–white);
+border: none;
+padding: 16px 24px;
+cursor: pointer;
+transition: background .2s;
+text-align: left;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.inquiry-submit:hover { background: var(–red); }
+.inquiry-note {
+margin-top: 14px;
+font-size: 9px;
+color: var(–dim);
+line-height: 1.7;
+}
+.inquiry-success {
+display: none;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 48px 32px;
+text-align: center;
+flex: 1;
+}
+.inquiry-success.show { display: flex; }
+.success-mark {
+font-family: var(–serif);
+font-size: 48px;
+font-style: italic;
+color: var(–dim);
+margin-bottom: 24px;
+}
+.success-heading { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; margin-bottom: 12px; }
+.success-sub {
+font-family: var(–sans);
+font-size: 11px;
+color: var(–mid);
+font-style: italic;
+line-height: 1.8;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+header { grid-template-columns: 1fr 1fr; padding: 18px 24px; }
+.header-status { display: none; }
+.cat-intro { grid-template-columns: 1fr; padding: 36px 24px 32px; gap: 36px; }
+.problem-header { grid-template-columns: 48px 1fr; padding: 28px 24px; }
+.fabric-entry { grid-template-columns: 48px 1fr; }
+.entry-idx { padding-left: 24px; }
+.entry-body { padding: 28px 24px 28px 0; }
+.bottom-cta, .eng-cta-section, .about-closing-inner { grid-template-columns: 1fr; padding: 40px 24px; gap: 32px; }
+footer { grid-template-columns: 1fr; padding: 24px; gap: 16px; }
+.footer-right { align-items: flex-start; }
+.footer-mid { text-align: left; }
+.eol-coming { grid-template-columns: 1fr; padding: 40px 24px; gap: 36px; }
+.engagements-grid { grid-template-columns: 1fr; }
+.engagement { border-right: none; border-bottom: 1px solid var(–rule); }
+.engagement:last-child { border-bottom: none; }
+.eng-hero, .about-hero { grid-template-columns: 1fr; }
+.about-hero-left { min-height: 300px; padding: 60px 32px; }
+.about-hero-right { padding: 60px 32px; }
+.about-principles-inner { grid-template-columns: 1fr; gap: 40px; padding: 0 24px; }
+.principles-list { grid-template-columns: 1fr; }
+.principle-item { border-right: none; padding-right: 0; }
+.principle-item:nth-child(even) { padding-left: 0; }
+.about-closing { padding: 60px 0; }
+.about-closing-inner { padding: 0 24px; }
+.eng-hero { padding: 60px 24px; }
+.eng-cta-section { flex-direction: column; align-items: flex-start; gap: 32px; padding: 60px 24px; }
+}
+</style>
+
+</head>
+<body>
+
+<!-- ════════════ GLOBAL STICKY HEADER ════════════ -->
+
+<div class="sticky-header">
+  <header>
+    <button class="wordmark" onclick="showPage('catalogue')">
+      <span class="wordmark-dot"></span>
+      Texigent
+    </button>
+    <div></div>
+    <nav>
+      <button onclick="showPage('catalogue')" id="nav-catalogue">Products</button>
+      <button onclick="showPage('engagements')" id="nav-engagements">Engagements</button>
+      <button onclick="showPage('about')" id="nav-about" class="nav-active">About</button>
+      <button onclick="openinquiry('General inquiry')">Contact</button>
+    </nav>
+  </header>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PAGE: CATALOGUE
+════════════════════════════════════════════════ -->
+
+<div class="page" id="page-catalogue">
+
+  <div class="cat-nav">
+    <button class="cat-tab active" onclick="showCat('nts',this)">
+      Next-to-Skin
+      <span class="cat-tab-sub">2 problems · 2 fabrics</span>
+    </button>
+    <button class="cat-tab" onclick="showCat('insul',this)">
+      Insulation
+      <span class="cat-tab-sub">2 problems · 2 fabrics</span>
+    </button>
+    <button class="cat-tab" onclick="showCat('shell',this)">
+      Shell
+      <span class="cat-tab-sub">2 problems · 2 fabrics</span>
+    </button>
+    <button class="cat-tab" onclick="showCat('outer',this)">
+      Outer
+      <span class="cat-tab-sub">4 problems · 4 fabrics</span>
+    </button>
+    <button class="cat-tab" onclick="showCat('eol',this)">
+      End-of-Life Design
+      <span class="cat-tab-sub">In development</span>
+    </button>
+  </div>
+
+  <!-- NEXT-TO-SKIN -->
+
+  <div class="cat-panel active" id="cat-nts">
+    <div class="cat-intro">
+      <div>
+        <span class="cat-label">Next-to-Skin</span>
+        <div class="cat-headline">The fabric closest to the body<br>is the one that has to <em>respond to it.</em></div>
+        <p class="cat-body">Skin contact is not a passive condition. The body's thermal output, moisture production, and sensitivity to texture change across every activity and environment — and the fabric against skin has to move with all of it. These materials are selected for how they perform across the full dynamic range of the body: thermoregulation, moisture transport, and next-to-skin comfort treated as specification variables, not afterthoughts.</p>
+      </div>
+      <div class="cat-meta">
+        <div class="challenge-nav-label">Problems in this category</div>
+        <button class="challenge-nav-item" onclick="scrollToId('nts-p1')"><span class="challenge-nav-name">Moisture Management</span><span class="challenge-nav-arrow">↓</span></button>
+        <button class="challenge-nav-item" onclick="scrollToId('nts-p2')"><span class="challenge-nav-name">Sensory Performance</span><span class="challenge-nav-arrow">↓</span></button>
+      </div>
+    </div>
+
+```
+<div class="fabric-section" id="nts-p1">
+  <div class="problem-header">
+    <div class="problem-num">1</div>
+    <div>
+      <span class="problem-challenge">Moisture Management</span>
+      <div class="problem-statement">Wet skin is not a comfort problem. It is a performance problem.</div>
+      <p class="problem-context">Moisture retained at the skin surface increases friction, accelerates chilling during stop-and-go activities, and prolongs recovery between efforts. The failure is not sweat — it is a fabric that holds it there.</p>
+    </div>
+  </div>
+  <div class="fabric-entry">
+    <div class="entry-idx">A</div>
+    <div class="entry-body">
+      <div class="entry-fabric-label">Fabric</div>
+      <div class="entry-does">Skin stays dry. Sweat doesn't.</div>
+      <div class="entry-id">Dry-Touch Wicking Knit · Polyester / Nylon / Spandex variants · 100–180 g/m²</div>
+      <div class="entry-mechanism">One-way wicking construction drives moisture from the skin-facing surface to the outer face for rapid evaporation. The skin side stays dry not through absorption but through directional transport — sweat moves <strong>through</strong>, not into, the fabric. <strong>Dry time under 15 minutes at 20°C.</strong> Specified for high-output activities with variable intensity — trail running, cycling, alpine approach — where sustained moisture at skin is the primary comfort failure.</div>
+      <div class="spec-row">
+        <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">100–180 g/m²</span></div>
+        <div class="spec"><span class="spec-k">Wicking</span><span class="spec-v">One-way directional</span></div>
+        <div class="spec"><span class="spec-k">Dry time</span><span class="spec-v">&lt;15 min / 20°C</span></div>
+        <div class="spec"><span class="spec-k">Stretch</span><span class="spec-v">2-way or 4-way</span></div>
+        <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+        <div class="spec"><span class="spec-k">Origin</span><span class="spec-v">TBC</span></div>
+      </div>
+      <div class="entry-footer">
+        <span class="badge-cert">OEKO-TEX® S100</span>
+        <span class="badge-tag">Running</span>
+        <span class="badge-tag">Training</span>
+        <span class="badge-tag">Alpine baselayer</span>
+        <span class="avail-ord">○ On order</span>
+        <button class="btn-inquire" onclick="openinquiry('Dry-Touch Wicking Knit')"><span>inquire →</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fabric-section" id="nts-p2">
+  <div class="problem-header">
+    <div class="problem-num">2</div>
+    <div>
+      <span class="problem-challenge">Sensory Performance</span>
+      <div class="problem-statement">Synthetic solves the performance brief. It does not solve what the body actually wants to feel.</div>
+      <p class="problem-context">Polyester and nylon deliver measurable performance — but the hand feel, drape, and visual quality remain identifiably synthetic. Against skin, that difference is always present.</p>
+    </div>
+  </div>
+  <div class="fabric-entry">
+    <div class="entry-idx">B</div>
+    <div class="entry-body">
+      <div class="entry-fabric-label">Fabric</div>
+      <div class="entry-does">Performs like synthetic. Wears like it isn't.</div>
+      <div class="entry-id">Natural-Touch Performance Knit · Engineered filament yarn · TBC g/m²</div>
+      <div class="entry-mechanism">Engineered filament yarn construction replicates the surface texture, drape, and visual softness of natural fibre without sacrificing the performance behaviour of synthetic. <strong>Wicking, quick-dry, and pilling resistance</strong> are maintained at sport specification. The result performs on a trail run and doesn't look like it came from one.</div>
+      <div class="spec-row">
+        <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">TBC</span></div>
+        <div class="spec"><span class="spec-k">Wicking</span><span class="spec-v">Yes</span></div>
+        <div class="spec"><span class="spec-k">Dry time</span><span class="spec-v">TBC</span></div>
+        <div class="spec"><span class="spec-k">Pilling</span><span class="spec-v">TBC (ISO 12945)</span></div>
+        <div class="spec"><span class="spec-k">Stretch</span><span class="spec-v">TBC</span></div>
+        <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+      </div>
+      <div class="entry-footer">
+        <span class="badge-cert">OEKO-TEX® S100</span>
+        <span class="badge-tag">Running</span>
+        <span class="badge-tag">Training</span>
+        <span class="badge-tag">Lifestyle performance</span>
+        <span class="avail-ord">○ On order</span>
+        <button class="btn-inquire" onclick="openinquiry('Natural-Touch Performance Knit')"><span>inquire →</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- INSULATION -->
+
+  <div class="cat-panel" id="cat-insul">
+    <div class="cat-intro">
+      <div>
+        <span class="cat-label">Insulation</span>
+        <div class="cat-headline">Insulation fails at the point<br>of maximum effort. <em>That is exactly<br>when it needs to work.</em></div>
+        <p class="cat-body">Breathability is the underspecified variable in insulation. Warmth ratings describe static conditions — the body in motion generates a different set of demands entirely. These materials are selected against activity and environment: how the fabric manages heat and vapour under output, not just how it performs at rest.</p>
+      </div>
+      <div class="cat-meta">
+        <div class="challenge-nav-label">Problems in this category</div>
+        <button class="challenge-nav-item" onclick="scrollToId('ins-p1')"><span class="challenge-nav-name">Overheating</span><span class="challenge-nav-arrow">↓</span></button>
+        <button class="challenge-nav-item" onclick="scrollToId('ins-p2')"><span class="challenge-nav-name">Natural Performance</span><span class="challenge-nav-arrow">↓</span></button>
+      </div>
+    </div>
+    <div class="fabric-section" id="ins-p1">
+      <div class="problem-header">
+        <div class="problem-num">1</div>
+        <div>
+          <span class="problem-challenge">Overheating</span>
+          <div class="problem-statement">The insulation layer that keeps you warm at rest becomes the problem the moment you move.</div>
+          <p class="problem-context">Conventional insulation traps heat without discrimination — it performs identically whether the body is generating 200 watts or 20. Under sustained output, that retention becomes a liability.</p>
+        </div>
+      </div>
+      <div class="fabric-entry">
+        <div class="entry-idx">A</div>
+        <div class="entry-body">
+          <div class="entry-fabric-label">Fabric</div>
+          <div class="entry-does">Warm when you stop. Not when you don't need it to be.</div>
+          <div class="entry-id">Active Insulation Fleece · Open-net construction with loft · TBC g/m²</div>
+          <div class="entry-mechanism">An open-net foundation with loft plated onto it separates the two functions conventional insulation conflates. Under output, the open construction allows heat and vapour to pass through efficiently. At rest or under a shell, the loft engages and <strong>thermal retention holds</strong>. More breathable than bonded insulation; more thermally retentive than open-mesh fleece.</div>
+          <div class="spec-row">
+            <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">CLO (static)</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Air permeability</span><span class="spec-v">TBC (high)</span></div>
+            <div class="spec"><span class="spec-k">Dry time</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Origin</span><span class="spec-v">TBC</span></div>
+          </div>
+          <div class="entry-footer">
+            <span class="badge-cert">OEKO-TEX® S100</span>
+            <span class="badge-tag">Alpine approach</span>
+            <span class="badge-tag">Trail running</span>
+            <span class="badge-tag">Ski touring</span>
+            <span class="avail-ord">○ On order</span>
+            <button class="btn-inquire" onclick="openinquiry('Active Insulation Fleece')"><span>inquire →</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fabric-section" id="ins-p2">
+      <div class="problem-header">
+        <div class="problem-num">2</div>
+        <div>
+          <span class="problem-challenge">Natural Performance</span>
+          <div class="problem-statement">Wool fleece delivers what synthetic cannot. The fibre also has limitations synthetic does not.</div>
+          <p class="problem-context">Wool fleece delivers natural thermal regulation and a wearing experience synthetic cannot replicate. The fibre also pills, degrades under abrasion, and loses structure over a product's lifetime. These are not finishing problems. They are fibre problems — and they are resolved at the blend level.</p>
+        </div>
+      </div>
+      <div class="fabric-entry">
+        <div class="entry-idx">B</div>
+        <div class="entry-body">
+          <div class="entry-fabric-label">Fabric</div>
+          <div class="entry-does">Wool performance. Without wool's limitations.</div>
+          <div class="entry-id">Wool-Blend Fleece · Wool / Polyester / Bamboo Rayon · TBC g/m²</div>
+          <div class="entry-mechanism">Polyester reinforces the fabric structure where wool is weakest — yarn integrity under abrasion and repeated mechanical stress. Bamboo rayon enhances surface softness and drape. <strong>Wool's thermal behaviour and natural breathability are preserved</strong> across the blend — CLO value and air permeability perform to wool specification without the durability trade-off.</div>
+          <div class="spec-row">
+            <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">CLO</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Air permeability</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Pilling</span><span class="spec-v">TBC (ISO 12945)</span></div>
+            <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Origin</span><span class="spec-v">TBC</span></div>
+          </div>
+          <div class="entry-footer">
+            <span class="badge-cert">OEKO-TEX® S100</span>
+            <span class="badge-tag">Alpine mid-layer</span>
+            <span class="badge-tag">Lifestyle fleece</span>
+            <span class="avail-ord">○ On order</span>
+            <button class="btn-inquire" onclick="openinquiry('Wool-Blend Fleece')"><span>inquire →</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHELL -->
+
+  <div class="cat-panel" id="cat-shell">
+    <div class="cat-intro">
+      <div>
+        <span class="cat-label">Shell</span>
+        <div class="cat-headline">Protection is the easy part.<br><em>Managing output</em> is the problem.</div>
+        <p class="cat-body">Every shell decision is a negotiation between what it keeps out and what it lets through. The fabrics here are selected for brands who understand that breathability is not a marketing term — it is the primary performance variable in sustained-output garments.</p>
+      </div>
+      <div class="cat-meta">
+        <div class="challenge-nav-label">Problems in this category</div>
+        <button class="challenge-nav-item" onclick="scrollToId('sh-p1')"><span class="challenge-nav-name">Airflow vs. Structure</span><span class="challenge-nav-arrow">↓</span></button>
+        <button class="challenge-nav-item" onclick="scrollToId('sh-p2')"><span class="challenge-nav-name">Hand Feel</span><span class="challenge-nav-arrow">↓</span></button>
+      </div>
+    </div>
+    <div class="fabric-section" id="sh-p1">
+      <div class="problem-header">
+        <div class="problem-num">1</div>
+        <div>
+          <span class="problem-challenge">Airflow vs. Structure</span>
+          <div class="problem-statement">A tightly woven shell stops the wind. It also stops the body from breathing.</div>
+          <p class="problem-context">Weave density is a direct trade-off between protection and ventilation. Close the structure and airflow collapses. Open it and durability suffers. The specification decision is not which problem to accept — it is how to engineer around both.</p>
+        </div>
+      </div>
+      <div class="fabric-entry">
+        <div class="entry-idx">A</div>
+        <div class="entry-body">
+          <div class="entry-fabric-label">Fabric</div>
+          <div class="entry-does">Airflow is a specification. So is the structure that survives it.</div>
+          <div class="entry-id">Engineered Woven Shell · High-tenacity yarn construction · 50–120 g/m²</div>
+          <div class="entry-mechanism">Engineered construction controls airflow without sacrificing structural integrity. <strong>High-tenacity yarn</strong> maintains tear strength and abrasion resistance at the thread level — so the weave can be opened for ventilation without compromising longevity.</div>
+          <div class="spec-row">
+            <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">50–120 g/m²</span></div>
+            <div class="spec"><span class="spec-k">Air permeability</span><span class="spec-v">High / Med / Essential</span></div>
+            <div class="spec"><span class="spec-k">Tear strength</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Abrasion</span><span class="spec-v">TBC (Martindale)</span></div>
+            <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Origin</span><span class="spec-v">TBC</span></div>
+          </div>
+          <div class="entry-footer">
+            <span class="badge-cert">OEKO-TEX® S100</span>
+            <span class="badge-tag">Trail running</span>
+            <span class="badge-tag">Hiking</span>
+            <span class="badge-tag">Wind shell</span>
+            <span class="avail-ord">○ On order</span>
+            <button class="btn-inquire" onclick="openinquiry('Engineered Woven Shell')"><span>inquire →</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fabric-section" id="sh-p2">
+      <div class="problem-header">
+        <div class="problem-num">2</div>
+        <div>
+          <span class="problem-challenge">Hand Feel</span>
+          <div class="problem-statement">Synthetic performance fabrics have solved weather protection. They have not solved how wearing one feels.</div>
+          <p class="problem-context">Waterproof membranes, woven outers, and bonded laminates deliver measurable protection — but the tactile experience remains identifiably technical. These constructions recover the natural character that synthetic has historically traded away.</p>
+        </div>
+      </div>
+      <div class="fabric-entry">
+        <div class="entry-idx">B</div>
+        <div class="entry-body">
+          <div class="entry-fabric-label">Fabric</div>
+          <div class="entry-does">Synthetic performance, re-engineered for human sensory experience.</div>
+          <div class="entry-id">Natural-Touch Shell System · Engineered yarn / construction / finish · 80–200 g/m²</div>
+          <div class="entry-mechanism">Yarn engineering, construction design, and finishing process work together to close the gap between synthetic performance and natural tactile experience. The mechanism is not surface treatment: it is structural, built into the yarn and construction from the start.</div>
+          <div class="variant-block">
+            <div class="variant-label">B-1 · Natural Touch Waterproof Shell</div>
+            <div class="spec-row" style="margin:0; padding: 12px 16px 4px;">
+              <div class="spec"><span class="spec-k">Lamination</span><span class="spec-v">2L / 2.5L / 3L</span></div>
+              <div class="spec"><span class="spec-k">Hydrostatic</span><span class="spec-v">TBC</span></div>
+              <div class="spec"><span class="spec-k">MVTR</span><span class="spec-v">TBC</span></div>
+              <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">80–200 g/m²</span></div>
+              <div class="spec"><span class="spec-k">Hand feel</span><span class="spec-v">Cottony / Paper-touch</span></div>
+              <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            </div>
+          </div>
+          <div class="variant-block">
+            <div class="variant-label">B-2 · Soft-Touch 3L Inner Lining</div>
+            <div class="spec-row" style="margin:0; padding: 12px 16px 4px;">
+              <div class="spec"><span class="spec-k">Lamination</span><span class="spec-v">3L (jersey as skin layer)</span></div>
+              <div class="spec"><span class="spec-k">Hydrostatic</span><span class="spec-v">TBC</span></div>
+              <div class="spec"><span class="spec-k">MVTR</span><span class="spec-v">TBC</span></div>
+              <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">140–200 g/m²</span></div>
+              <div class="spec"><span class="spec-k">Construction</span><span class="spec-v">Fine-gauge soft jersey</span></div>
+              <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            </div>
+          </div>
+          <div class="entry-footer" style="margin-top:8px;">
+            <span class="badge-cert">OEKO-TEX® S100</span>
+            <span class="badge-tag">Waterproof shell</span>
+            <span class="badge-tag">3L laminate</span>
+            <span class="avail-ord">○ On order</span>
+            <button class="btn-inquire" onclick="openinquiry('Natural-Touch Shell System')"><span>inquire →</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OUTER -->
+
+  <div class="cat-panel" id="cat-outer">
+    <div class="cat-intro">
+      <div>
+        <span class="cat-label">Outer</span>
+        <div class="cat-headline">Outer is not a protection category.<br><em>It is a construction category.</em></div>
+        <p class="cat-body">Without a membrane, there is no fallback. The fabric's construction, yarn behaviour, and surface character carry the entire performance brief — abrasion resistance, weight efficiency, stretch, drape, and tactile quality are all resolved at the material level.</p>
+      </div>
+      <div class="cat-meta">
+        <div class="challenge-nav-label">Problems in this category</div>
+        <button class="challenge-nav-item" onclick="scrollToId('out-p1')"><span class="challenge-nav-name">Appearance vs. Experience</span><span class="challenge-nav-arrow">↓</span></button>
+        <button class="challenge-nav-item" onclick="scrollToId('out-p2')"><span class="challenge-nav-name">One Layer. Two Functions.</span><span class="challenge-nav-arrow">↓</span></button>
+        <button class="challenge-nav-item" onclick="scrollToId('out-p3')"><span class="challenge-nav-name">Stretch vs. Durability</span><span class="challenge-nav-arrow">↓</span></button>
+        <button class="challenge-nav-item" onclick="scrollToId('out-p4')"><span class="challenge-nav-name">Lightweight vs. Strength</span><span class="challenge-nav-arrow">↓</span></button>
+      </div>
+    </div>
+    <div class="fabric-section" id="out-p1">
+      <div class="problem-header">
+        <div class="problem-num">1</div>
+        <div>
+          <span class="problem-challenge">Appearance vs. Experience</span>
+          <div class="problem-statement">A fabric can look technical and feel like a compromise. Or it can look considered and perform like a specification.</div>
+          <p class="problem-context">Woven constructions for outer application are often specified for structure and durability — and deliver both at the cost of wearing experience. These fabrics are selected for brands who refuse that trade-off.</p>
+        </div>
+      </div>
+      <div class="fabric-entry">
+        <div class="entry-idx">A</div>
+        <div class="entry-body">
+          <div class="entry-fabric-label">Fabric</div>
+          <div class="entry-does">Woven construction. Natural character.</div>
+          <div class="entry-id">Natural-Touch Woven · Engineered yarn / construction / finish · 60–200 g/m²</div>
+          <div class="entry-mechanism">Yarn engineering and construction design deliver the surface texture, drape, and visual softness of natural fibre — without a membrane, without a laminate. <strong>Cottony or paper-touch hand feel</strong> is built into the construction, not applied as a finish.</div>
+          <div class="spec-row">
+            <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">60–200 g/m²</span></div>
+            <div class="spec"><span class="spec-k">Hand feel</span><span class="spec-v">Cottony / Paper-touch</span></div>
+            <div class="spec"><span class="spec-k">Stretch</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Application</span><span class="spec-v">Jacket · Shirt · Bottom</span></div>
+            <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Origin</span><span class="spec-v">TBC</span></div>
+          </div>
+          <div class="entry-footer">
+            <span class="badge-cert">OEKO-TEX® S100</span>
+            <span class="badge-tag">Jacket</span><span class="badge-tag">Shirt</span><span class="badge-tag">Bottom</span>
+            <span class="avail-ord">○ On order</span>
+            <button class="btn-inquire" onclick="openinquiry('Natural-Touch Woven')"><span>inquire →</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fabric-section" id="out-p2">
+      <div class="problem-header">
+        <div class="problem-num">2</div>
+        <div>
+          <span class="problem-challenge">One Layer. Two Functions.</span>
+          <div class="problem-statement">A shell and a fleece solve different problems. Carrying both adds weight, cost, and complexity.</div>
+          <p class="problem-context">Softshell fleece is specified where a single construction needs to resist abrasion on the face, trap air for thermal resistance on the back, and perform across the full activity range without an additional layer.</p>
+        </div>
+      </div>
+      <div class="fabric-entry">
+        <div class="entry-idx">B</div>
+        <div class="entry-body">
+          <div class="entry-fabric-label">Fabric</div>
+          <div class="entry-does">One construction. Two layers replaced.</div>
+          <div class="entry-id">Softshell Fleece · Tight-face / pile-back construction · TBC g/m²</div>
+          <div class="entry-mechanism">Tight face weave delivers abrasion resistance at the surface. Soft pile construction on the back traps air for <strong>thermal resistance without bulk</strong>. Air permeability is controlled through face weave density — open enough to prevent heat build-up under output, closed enough to resist wind penetration at rest.</div>
+          <div class="variant-block">
+            <div class="variant-label">B-1 · Textured Pile</div>
+            <div class="spec-row" style="margin:0; padding: 12px 16px 4px;">
+              <div class="spec"><span class="spec-k">Surface</span><span class="spec-v">Textured</span></div>
+              <div class="spec"><span class="spec-k">Thermal</span><span class="spec-v">Zoned variation</span></div>
+              <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            </div>
+          </div>
+          <div class="variant-block">
+            <div class="variant-label">B-2 · Allover Pile</div>
+            <div class="spec-row" style="margin:0; padding: 12px 16px 4px;">
+              <div class="spec"><span class="spec-k">Surface</span><span class="spec-v">Uniform</span></div>
+              <div class="spec"><span class="spec-k">Thermal</span><span class="spec-v">Consistent loft</span></div>
+              <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            </div>
+          </div>
+          <div class="spec-row" style="margin-top:12px;">
+            <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">CLO</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Air permeability</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Abrasion</span><span class="spec-v">TBC (Martindale)</span></div>
+          </div>
+          <div class="entry-footer">
+            <span class="badge-cert">OEKO-TEX® S100</span>
+            <span class="badge-tag">Softshell jacket</span>
+            <span class="badge-tag">Hiking</span>
+            <span class="badge-tag">Alpine mid-layer</span>
+            <span class="avail-ord">○ On order</span>
+            <button class="btn-inquire" onclick="openinquiry('Softshell Fleece')"><span>inquire →</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fabric-section" id="out-p3">
+      <div class="problem-header">
+        <div class="problem-num">3</div>
+        <div>
+          <span class="problem-challenge">Stretch vs. Durability</span>
+          <div class="problem-statement">Stretch wovens are specified for mobility. Abrasion resistance is what they give up to get there.</div>
+          <p class="problem-context">For jacket and trouser applications where the garment takes repeated friction across knees, elbows, and seat, that trade-off is the failure mode.</p>
+        </div>
+      </div>
+      <div class="fabric-entry">
+        <div class="entry-idx">C</div>
+        <div class="entry-body">
+          <div class="entry-fabric-label">Fabric</div>
+          <div class="entry-does">Moves with the body. Holds against the terrain.</div>
+          <div class="entry-id">Stretch Woven · Engineered yarn / weave construction · 90–200 g/m²</div>
+          <div class="entry-mechanism">Yarn engineering and weave construction work together to resolve the trade-off structurally. Yarn selection delivers the abrasion resistance; weave architecture delivers the <strong>four-way stretch</strong>. Neither is a compromise of the other.</div>
+          <div class="spec-row">
+            <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">90–200 g/m²</span></div>
+            <div class="spec"><span class="spec-k">Stretch</span><span class="spec-v">4-way</span></div>
+            <div class="spec"><span class="spec-k">Abrasion</span><span class="spec-v">TBC (Martindale)</span></div>
+            <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Origin</span><span class="spec-v">TBC</span></div>
+          </div>
+          <div class="entry-footer">
+            <span class="badge-cert">OEKO-TEX® S100</span>
+            <span class="badge-tag">Jacket</span>
+            <span class="badge-tag">Trouser</span>
+            <span class="badge-tag">Alpine</span>
+            <span class="avail-ord">○ On order</span>
+            <button class="btn-inquire" onclick="openinquiry('Stretch Woven')"><span>inquire →</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="fabric-section" id="out-p4">
+      <div class="problem-header">
+        <div class="problem-num">4</div>
+        <div>
+          <span class="problem-challenge">Lightweight vs. Strength</span>
+          <div class="problem-statement">Lightweight wovens are a weight specification first. Structural integrity is what gets negotiated away.</div>
+          <p class="problem-context">At low gramme weights, conventional woven constructions sacrifice tear strength, abrasion resistance, and long-term durability. For outer applications where both are non-negotiable, that negotiation is the failure mode.</p>
+        </div>
+      </div>
+      <div class="fabric-entry">
+        <div class="entry-idx">D</div>
+        <div class="entry-body">
+          <div class="entry-fabric-label">Fabric</div>
+          <div class="entry-does">Ultralight construction. Structural performance that justifies it.</div>
+          <div class="entry-id">UHMWPE Lightweight Woven · UHMWPE / engineered yarn blend · TBC g/m²</div>
+          <div class="entry-mechanism">UHMWPE fibre is ten times stronger than steel at equivalent weight — the structural case is in the fibre, not the weave density. Blended into a lightweight woven construction, it carries the strength requirement without adding mass. <strong>Tear strength and abrasion resistance hold</strong> at weights where standard constructions begin to fail.</div>
+          <div class="spec-row">
+            <div class="spec"><span class="spec-k">Weight</span><span class="spec-v">TBC (ultralight)</span></div>
+            <div class="spec"><span class="spec-k">Tear strength</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Abrasion</span><span class="spec-v">TBC (Martindale)</span></div>
+            <div class="spec"><span class="spec-k">MOQ</span><span class="spec-v">TBC</span></div>
+            <div class="spec"><span class="spec-k">Origin</span><span class="spec-v">TBC</span></div>
+          </div>
+          <div class="entry-footer">
+            <span class="badge-cert">OEKO-TEX® S100</span>
+            <span class="badge-tag">Ultralight jacket</span>
+            <span class="badge-tag">Alpine</span>
+            <span class="badge-tag">Trail running</span>
+            <span class="avail-ord">○ On order</span>
+            <button class="btn-inquire" onclick="openinquiry('UHMWPE Lightweight Woven')"><span>inquire →</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EOL -->
+
+  <div class="cat-panel" id="cat-eol">
+    <div class="cat-intro">
+      <div>
+        <span class="cat-label">End-of-Life Design</span>
+        <div class="cat-headline">Built to last.<br>Built to end.<br><em>Both are specifications.</em></div>
+        <p class="cat-body">Most material decisions optimise for one end of the product lifecycle. These address both. Selected for mono-material integrity, certified recycled content, and lower-impact fibre inputs — the specification work is done at the front end so the end-of-life path is already built in.</p>
+      </div>
+      <div class="cat-meta">
+        <div class="challenge-nav-label">Status</div>
+        <div style="padding: 16px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); display: flex; justify-content: space-between;">
+          <span style="font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim);">In development</span>
+          <span style="font-size:9px; color:var(--dim);">Q3 2026</span>
+        </div>
+      </div>
+    </div>
+    <div class="eol-coming">
+      <div>
+        <span class="cat-label" style="margin-bottom:24px;">Design principles</span>
+        <div class="eol-principles">
+          <div class="eol-principle"><div class="eol-principle-name">Mono-material integrity</div><div class="eol-principle-desc">Single-fibre constructions that enter existing recycling streams without sorting or separation at end-of-life.</div></div>
+          <div class="eol-principle"><div class="eol-principle-name">Certified recycled input</div><div class="eol-principle-desc">GRS-certified recycled fibre content verified from waste stream to finished fabric — traceable by design.</div></div>
+          <div class="eol-principle"><div class="eol-principle-name">Digital Product Passport ready</div><div class="eol-principle-desc">Material data structured for EU ESPR compliance — composition, origin, and end-of-life pathway embedded at specification stage.</div></div>
+          <div class="eol-principle"><div class="eol-principle-name">Performance non-negotiable</div><div class="eol-principle-desc">Sustainability specifications do not come at the cost of functional performance. Each construction meets the same brief as its conventional counterpart.</div></div>
+        </div>
+      </div>
+      <div class="eol-status-block">
+        <span class="cat-label" style="margin-bottom:24px;">Development status</span>
+        <div class="eol-status-item"><span class="eol-status-key">Mono-polyester construction</span><span class="eol-status-val">Sourcing</span></div>
+        <div class="eol-status-item"><span class="eol-status-key">GRS recycled knit</span><span class="eol-status-val">Sampling</span></div>
+        <div class="eol-status-item"><span class="eol-status-key">Bio-based shell construction</span><span class="eol-status-val">In evaluation</span></div>
+        <div class="eol-status-item"><span class="eol-status-key">ESPR data structure</span><span class="eol-status-val">In development</span></div>
+        <div class="eol-status-item"><span class="eol-status-key">Target catalogue launch</span><span class="eol-status-val">Q3 2026</span></div>
+        <button class="eol-brief-btn" onclick="openinquiry('End-of-Life Design Brief')">Brief us on your EOL requirement <span>→</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATALOGUE BOTTOM CTA -->
+
+  <div class="bottom-cta">
+    <div class="cta-text">Every specification here is a <span>starting point.</span> The actual problem you're solving is the conversation we're interested in.</div>
+    <div class="cta-actions">
+      <button class="btn-primary" onclick="openinquiry('Swatch Book Request')">Request swatch book <span>→</span></button>
+      <button class="btn-secondary" onclick="openinquiry('Material Consultation')">Schedule a material consultation <span>→</span></button>
+      <button class="btn-secondary" onclick="openinquiry('Missing Fabric Brief')">Brief us on a missing fabric <span>→</span></button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-wordmark">Texigent</div>
+    <div class="footer-mid">Material conflicts resolved.</div>
+    <div class="footer-right">
+      <span>© 2026 Texigent</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PAGE: ENGAGEMENTS
+════════════════════════════════════════════════ -->
+
+<div class="page" id="page-engagements">
+
+  <div class="eng-hero">
+    <div>
+      <p class="eng-hero-label">// How to work with us</p>
+      <h1 class="eng-hero-title">Engage&shy;ments</h1>
+    </div>
+    <p class="eng-hero-sub">Three ways in. Each starts with a problem.</p>
+  </div>
+
+  <div class="engagements-grid">
+    <div class="engagement">
+      <span class="engagement-index">// 01</span>
+      <h2 class="engagement-title">Match</h2>
+      <p class="engagement-body">You have a brief. We find the material that answers it — fibre, construction, certification, and supply chain evaluated simultaneously. One recommendation, with the reasoning behind it.</p>
+    </div>
+    <div class="engagement">
+      <span class="engagement-index">// 02</span>
+      <h2 class="engagement-title">Build</h2>
+      <p class="engagement-body">You have a constraint the market hasn't solved. We develop toward it — from technical problem backward to material solution. Iteration included.</p>
+    </div>
+    <div class="engagement">
+      <span class="engagement-index">// 03</span>
+      <h2 class="engagement-title">Validate</h2>
+      <p class="engagement-body">You have a material selected. We stress-test it — end-use fit, supply chain conflicts, specification gaps. No stake in the original decision.</p>
+    </div>
+  </div>
+
+  <div class="eng-cta-section">
+    <p class="eng-cta-text">Tell us where you are in the process. We'll tell you which engagement fits.</p>
+    <button class="btn-primary" onclick="openinquiry('Engagement inquiry')" style="min-width:220px;">inquire <span>→</span></button>
+  </div>
+
+  <footer>
+    <div class="footer-wordmark">Texigent</div>
+    <div class="footer-mid">Material conflicts resolved.</div>
+    <div class="footer-right">
+      <span>© 2026 Texigent</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     PAGE: ABOUT
+════════════════════════════════════════════════ -->
+
+<div class="page active" id="page-about">
+
+  <div class="about-hero">
+    <div class="about-hero-left">
+      <h1 class="about-hero-wordmark">Texigent</h1>
+    </div>
+    <div class="about-hero-right">
+      <div class="about-hero-label">// WHO WE ARE</div>
+      <p class="about-hero-body">
+        Texigent is a <strong>brand development partner</strong> and <strong>converter</strong> built around a different model. Most suppliers start with what they have. We start with what you need.
+        <br><br>
+        Built around specific solutions, not a general catalogue. That focus is still what shapes everything we do.
+        <br><br>
+        We define the problem. We set the standard. Then we source to it.
+      </p>
+    </div>
+  </div>
+
+  <div class="about-principles">
+    <div class="about-principles-inner">
+      <div>
+        <span class="about-section-num">// 02</span>
+        <div class="about-section-label">// What we believe</div>
+      </div>
+      <div class="principles-list">
+        <div class="principle-item">
+          <span class="principle-num">01</span>
+          <div class="principle-title">Cost is the full equation</div>
+          <p class="principle-body">Price matters. So does the time it takes to get there, and the quality of what you receive. We don't optimize for one at the expense of the others.</p>
+          <div class="cost-eq">C <span class="eq-op">=</span> P <span class="eq-op">+</span> T <span class="eq-op">+</span> Q <span class="eq-label">COST · PRICE · TIME · QUALITY</span></div>
+        </div>
+        <div class="principle-item">
+          <span class="principle-num">02</span>
+          <div class="principle-title">Solutions before products</div>
+          <p class="principle-body">We start with the problem a brand is trying to solve — construction, performance, end-of-life — not with what we happen to have in stock.</p>
+        </div>
+        <div class="principle-item">
+          <span class="principle-num">03</span>
+          <div class="principle-title">Fit over volume</div>
+          <p class="principle-body">We work best with brands that know what they're building and want a partner who can keep up.</p>
+        </div>
+        <div class="principle-item">
+          <span class="principle-num">04</span>
+          <div class="principle-title">Development is a process</div>
+          <p class="principle-body">The brands we work with are building something over time. So are we.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-closing">
+    <div class="about-closing-inner">
+      <div>
+        <p class="closing-pull">No pitch.<br>Just a conversation.</p>
+        <p class="closing-body">If you're working through a fabric challenge — or trying to get ahead of one — we're happy to think through it with you.</p>
+        <button class="cta-link" onclick="openinquiry('General inquiry')">Get in touch →</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-wordmark">Texigent</div>
+    <div class="footer-mid">Material conflicts resolved.</div>
+    <div class="footer-right">
+      <span>© 2026 Texigent</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ════════════ inquiry PANEL ════════════ -->
+
+<div class="inquiry-overlay" id="inquiryOverlay" onclick="closeinquiry()"></div>
+<div class="inquiry-panel" id="inquiryPanel">
+  <div class="inquiry-header">
+    <div class="inquiry-title">
+      inquire
+      <span class="inquiry-fabric-name" id="inquiryFabricName"></span>
+    </div>
+    <button class="inquiry-close" onclick="closeinquiry()">×</button>
+  </div>
+  <div id="inquiryForm">
+    <div class="inquiry-body">
+      <div class="field-group">
+        <label class="field-label">Brand / Company</label>
+        <input type="text" class="field-input" placeholder="Your brand name">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Name</label>
+        <input type="text" class="field-input" placeholder="Your name">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Email</label>
+        <input type="email" class="field-input" placeholder="your@brand.com">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Interest</label>
+        <select class="field-select" id="interestSelect">
+          <option value="">Select…</option>
+          <option>Sample request</option>
+          <option>Technical specifications</option>
+          <option>Pricing &amp; MOQ</option>
+          <option>Swatch book</option>
+          <option>Material consultation</option>
+          <option>Missing fabric brief</option>
+          <option>End-of-Life Design brief</option>
+          <option>General inquiry</option>
+        </select>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Brief (optional)</label>
+        <textarea class="field-textarea" placeholder="Product category, end use, season, volume — any context helps."></textarea>
+      </div>
+    </div>
+    <div class="inquiry-footer">
+      <button class="inquiry-submit" onclick="submitinquiry()">Send inquiry <span>→</span></button>
+      <p class="inquiry-note">We respond to all inquiries within 2 business days. Sampling available on all catalogue materials.</p>
+    </div>
+  </div>
+  <div class="inquiry-success" id="inquirySuccess">
+    <div class="success-mark">✓</div>
+    <div class="success-heading">inquiry received</div>
+    <p class="success-sub">We'll be in touch within 2 business days.<br>Sampling is available on all catalogue materials.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+
+  /* ── PAGE SWITCHING ── */
+  var pageStatuses = {
+    catalogue: 'Q2 2026 — Material Catalogue',
+    engagements: 'Engagements',
+    about: 'About'
+  };
+
+  window.showPage = function (id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button[id^="nav-"]').forEach(b => b.classList.remove('nav-active'));
+    var page = document.getElementById('page-' + id);
+    if (page) page.classList.add('active');
+    var btn = document.getElementById('nav-' + id);
+    if (btn) btn.classList.add('nav-active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  /* ── CAT PANEL SWITCHING ── */
+  window.showCat = function (id, btn) {
+    document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+    var panel = document.getElementById('cat-' + id);
+    if (panel) panel.classList.add('active');
+    if (btn) btn.classList.add('active');
+    var header = document.querySelector('.sticky-header');
+    window.scrollTo({ top: header ? header.offsetHeight : 0, behavior: 'smooth' });
+  };
+
+  /* ── SCROLL TO SECTION ── */
+  window.scrollToId = function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var headerHeight = document.querySelector('.sticky-header').offsetHeight;
+    var top = el.getBoundingClientRect().top + window.pageYOffset - headerHeight - 12;
+    window.scrollTo({ top: top, behavior: 'smooth' });
+  };
+
+  /* ── inquiry PANEL ── */
+  window.openinquiry = function (fabricName) {
+    document.getElementById('inquiryFabricName').textContent = fabricName || '';
+    var select = document.getElementById('interestSelect');
+    if (fabricName === 'Swatch Book Request') select.value = 'Swatch book';
+    else if (fabricName === 'Material Consultation') select.value = 'Material consultation';
+    else if (fabricName === 'Missing Fabric Brief') select.value = 'Missing fabric brief';
+    else if (fabricName === 'End-of-Life Design Brief') select.value = 'End-of-Life Design brief';
+    else if (fabricName === 'General inquiry') select.value = 'General inquiry';
+    else if (fabricName === 'Engagement inquiry') select.value = 'General inquiry';
+    else select.value = 'Sample request';
+    document.getElementById('inquiryForm').style.display = '';
+    document.getElementById('inquirySuccess').classList.remove('show');
+    document.getElementById('inquiryOverlay').classList.add('open');
+    document.getElementById('inquiryPanel').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeinquiry = function () {
+    document.getElementById('inquiryOverlay').classList.remove('open');
+    document.getElementById('inquiryPanel').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+
+  window.submitinquiry = function () {
+    document.getElementById('inquiryForm').style.display = 'none';
+    document.getElementById('inquirySuccess').classList.add('show');
+  };
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeinquiry();
+  });
+
+  /* ── ABOUT PAGE SCROLL ANIMATIONS ── */
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.principle-item').forEach(function (el) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(16px)';
+    el.style.transition = 'opacity .6s ease, transform .6s ease';
+    observer.observe(el);
+  });
+
+  // Override visible state for principle items since they're in dark bg
+  var style = document.createElement('style');
+  style.textContent = '.principle-item.visible { opacity: 1 !important; transform: translateY(0) !important; }';
+  document.head.appendChild(style);
+
+})();
+</script>
+
+</body>
+</html>
